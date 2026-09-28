@@ -1,10 +1,14 @@
-import { BarChart3, Lightbulb, MessageSquareText, PanelLeft, RotateCcw } from "lucide-react";
+import { BarChart3, Lightbulb, MessageSquareText, RotateCcw, Users } from "lucide-react";
+import { NavLink } from "react-router-dom";
 
 const navigationItems = [
-  { label: "Overview", icon: PanelLeft, active: true },
+  { label: "Dashboard", icon: BarChart3, to: "/dashboard" },
+  { label: "Members", icon: Users, to: "/members" },
+];
+
+const placeholderItems = [
   { label: "Feedback", icon: MessageSquareText },
   { label: "Insights", icon: Lightbulb },
-  { label: "Reports", icon: BarChart3 },
 ];
 
 function AppLayout({ children }) {
@@ -22,20 +26,31 @@ function AppLayout({ children }) {
         </div>
 
         <nav className="flex gap-2 overflow-x-auto px-4 pb-4 lg:flex-col lg:overflow-visible">
-          {navigationItems.map(({ label, icon: Icon, active }) => (
-            <button
-              className={`flex shrink-0 items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition ${
-                active
-                  ? "bg-cyan-400/10 font-medium text-cyan-300"
-                  : "cursor-not-allowed text-slate-500"
-              }`}
-              disabled={!active}
+          {navigationItems.map(({ label, icon: Icon, to }) => (
+            <NavLink
+              className={({ isActive }) =>
+                `flex shrink-0 items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition ${
+                  isActive
+                    ? "bg-cyan-400/10 font-medium text-cyan-300"
+                    : "text-slate-400 hover:bg-slate-800 hover:text-slate-100"
+                }`
+              }
               key={label}
-              type="button"
+              to={to}
             >
               <Icon size={18} />
               {label}
-            </button>
+            </NavLink>
+          ))}
+
+          {placeholderItems.map(({ label, icon: Icon }) => (
+            <span
+              className="flex shrink-0 cursor-not-allowed items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600"
+              key={label}
+            >
+              <Icon size={18} />
+              {label}
+            </span>
           ))}
         </nav>
       </aside>
