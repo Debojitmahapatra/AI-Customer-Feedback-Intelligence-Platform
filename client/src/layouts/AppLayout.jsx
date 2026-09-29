@@ -1,15 +1,13 @@
-import { BarChart3, Lightbulb, MessageSquareText, RotateCcw, Users } from "lucide-react";
+import { BarChart3, Inbox, Lightbulb, RotateCcw, Users} from "lucide-react";
 import { NavLink } from "react-router-dom";
 
 const navigationItems = [
   { label: "Dashboard", icon: BarChart3, to: "/dashboard" },
+  { label: "Feedback Inbox", icon: Inbox, to: "/inbox" },
   { label: "Members", icon: Users, to: "/members" },
 ];
 
-const placeholderItems = [
-  { label: "Feedback", icon: MessageSquareText },
-  { label: "Insights", icon: Lightbulb },
-];
+const placeholderItems = [{ label: "Insights", icon: Lightbulb }];
 
 function AppLayout({ children }) {
   return (
