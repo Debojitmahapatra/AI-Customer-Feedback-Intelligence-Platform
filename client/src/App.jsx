@@ -1,7 +1,9 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import AppLayout from "./layouts/AppLayout.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
+import FeedbackDetails from "./pages/FeedbackDetails.jsx";
 import HomePage from "./pages/HomePage.jsx";
+import Inbox from "./pages/Inbox.jsx";
 import Login from "./pages/Login.jsx";
 import Members from "./pages/Members.jsx";
 import Register from "./pages/Register.jsx";
@@ -36,6 +38,26 @@ function App() {
           <ProtectedRoute>
             <AppLayout>
               <Members />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/inbox"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <Inbox />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/inbox/:feedbackId"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <FeedbackDetails />
             </AppLayout>
           </ProtectedRoute>
         }
