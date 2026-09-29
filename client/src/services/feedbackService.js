@@ -6,6 +6,22 @@ export const createFeedback = async (feedbackData) => {
   return response.data.data.feedback;
 };
 
+export const importCsv = async (file) => {
+  const formData = new FormData();
+
+  formData.append("file", file);
+
+  const response = await api.post("/feedback/import/csv", formData);
+
+  return response.data.data;
+};
+
+export const createSimulatedFeedback = async (feedbackData) => {
+  const response = await api.post("/feedback/simulated", feedbackData);
+
+  return response.data.data.feedback;
+};
+
 export const getFeedback = async (queryParameters) => {
   const response = await api.get("/feedback", {
     params: queryParameters,

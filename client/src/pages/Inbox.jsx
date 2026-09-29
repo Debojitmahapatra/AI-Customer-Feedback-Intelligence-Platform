@@ -5,6 +5,8 @@ import LoadingState from "../components/LoadingState.jsx";
 import FeedbackFilters from "../components/feedback/FeedbackFilters.jsx";
 import FeedbackForm from "../components/feedback/FeedbackForm.jsx";
 import FeedbackTable from "../components/feedback/FeedbackTable.jsx";
+import CsvImport from "../components/feedback/CsvImport.jsx";
+import SimulatedFeedbackForm from "../components/feedback/SimulatedFeedbackForm.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import { createFeedback, getFeedback } from "../services/feedbackService.js";
 
@@ -25,6 +27,8 @@ function Inbox() {
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
+  const [isSimulating, setIsSimulating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
 
@@ -112,16 +116,34 @@ function Inbox() {
           </p>
         </div>
 
-        {canManageFeedback && (
-          <button
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-cyan-400 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
-            onClick={() => setIsCreating((isOpen) => !isOpen)}
-            type="button"
-          >
-            <Plus size={18} />
-            Create Feedback
-          </button>
-        )}
+              {canManageFeedback && (
+                  <div className="flex flex-wrap gap-3">
+                      <button
+                          className="inline-flex items-center justify-center gap-2 rounded-lg bg-cyan-400 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
+                          onClick={() => setIsCreating((isOpen) => !isOpen)}
+                          type="button"
+                      >
+                          <Plus size={18} />
+                          Add Feedback
+                      </button>
+
+                      <button
+                          className="rounded-lg border border-slate-700 px-4 py-2.5 text-sm font-medium text-slate-200"
+                          onClick={() => setIsImporting((isOpen) => !isOpen)}
+                          type="button"
+                      >
+                          Import CSV
+                      </button>
+
+                      <button
+                          className="rounded-lg border border-slate-700 px-4 py-2.5 text-sm font-medium text-slate-200"
+                          onClick={() => setIsSimulating((isOpen) => !isOpen)}
+                          type="button"
+                      >
+                          Simulate Channel
+                      </button>
+                  </div>
+              )}
       </div>
 
       {message.text && (
@@ -145,6 +167,38 @@ function Inbox() {
           />
         </div>
       )}
+          {isImporting && canManageFeedback && (
+              <div className="mt-8">
+                  <CsvImport
+                      onClose={() => setIsImporting(false)}
+                      onComplete={async (result) => {
+                          setPage(1);
+                          setMessage({
+                              type: "success",
+                              text: `CSV import completed: ${result.importedRows} imported, ${result.failedRows} failed.`,
+                          });
+                          await loadFeedback(1);
+                      }}
+                  />
+              </div>
+          )}
+
+          {isSimulating && canManageFeedback && (
+              <div className="mt-8">
+                  <SimulatedFeedbackForm
+                      onClose={() => setIsSimulating(false)}
+                      onComplete={async () => {
+                          setIsSimulating(false);
+                          setPage(1);
+                          setMessage({
+                              type: "success",
+                              text: "Feedback received successfully.",
+                          });
+                          await loadFeedback(1);
+                      }}
+                  />
+              </div>
+          )}
 
       <div className="mt-8">
         <FeedbackFilters filters={filters} onChange={handleFiltersChange} />

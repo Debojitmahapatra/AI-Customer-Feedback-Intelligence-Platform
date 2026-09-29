@@ -11,6 +11,7 @@ const channels = [
 ];
 
 const statuses = ["NEW", "REVIEWED", "ACTIONED"];
+const sourceTypes = ["MANUAL", "CSV", "SIMULATED"];
 
 const feedbackSchema = new mongoose.Schema(
   {
@@ -42,6 +43,11 @@ const feedbackSchema = new mongoose.Schema(
       enum: statuses,
       default: "NEW",
     },
+    sourceType: {
+      type: String,
+      enum: sourceTypes,
+      default: "MANUAL",
+    },
     sentiment: {
       type: String,
       default: null,
@@ -70,5 +76,5 @@ feedbackSchema.index({ workspaceId: 1, channel: 1 });
 
 const Feedback = mongoose.model("Feedback", feedbackSchema);
 
-export { channels, statuses };
+export { channels, sourceTypes, statuses };
 export default Feedback;
