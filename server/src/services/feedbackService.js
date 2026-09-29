@@ -15,6 +15,7 @@ const formatFeedback = (feedback) => ({
   channel: feedback.channel,
   customerLabel: feedback.customerLabel,
   status: feedback.status,
+  sourceType: feedback.sourceType,
   createdAt: feedback.createdAt,
   updatedAt: feedback.updatedAt,
 });
@@ -43,16 +44,25 @@ const findWorkspaceFeedback = async (workspaceId, feedbackId) => {
 const escapeRegularExpression = (value) =>
   value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-export const createFeedback = async (workspaceId, feedbackData) => {
+export const createFeedback = async (
+  workspaceId,
+  feedbackData,
+  sourceType = "MANUAL",
+) => {
   const feedback = await Feedback.create({
     workspaceId,
     content: feedbackData.content,
     channel: feedbackData.channel,
     customerLabel: feedbackData.customerLabel || "",
+    status: "NEW",
+    sourceType,
   });
 
   return formatFeedback(feedback);
 };
+
+export const createSimulatedFeedback = async (workspaceId, feedbackData) =>
+  createFeedback(workspaceId, feedbackData, "SIMULATED");
 
 export const getFeedback = async (workspaceId, queryOptions) => {
   const { page, limit, search, channel, status } = queryOptions;
