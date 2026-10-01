@@ -7,6 +7,7 @@ import {
   getById,
   getList,
   importCsv,
+  reclassify,
   remove,
   update,
 } from "../controllers/feedbackController.js";
@@ -30,6 +31,11 @@ feedbackRouter.post(
   "/simulated",
   authorizeRoles("ADMIN", "ANALYST"),
   createSimulated,
+);
+feedbackRouter.post(
+  "/:feedbackId/reclassify",
+  authorizeRoles("ADMIN", "ANALYST"),
+  reclassify,
 );
 feedbackRouter.patch(
   "/:feedbackId",

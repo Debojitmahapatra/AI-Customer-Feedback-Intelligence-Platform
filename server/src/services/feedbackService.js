@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import Feedback from "../models/Feedback.js";
+import { classifyFeedback } from "./feedbackClassificationService.js";
 
 const createHttpError = (message, statusCode) => {
   const error = new Error(message);
@@ -16,6 +17,12 @@ const formatFeedback = (feedback) => ({
   customerLabel: feedback.customerLabel,
   status: feedback.status,
   sourceType: feedback.sourceType,
+  sentiment: feedback.sentiment,
+  sentimentScore: feedback.sentimentScore,
+  themes: feedback.themes || [],
+  featureArea: feedback.featureArea,
+  aiClassificationStatus: feedback.aiClassificationStatus || "PENDING",
+  aiClassifiedAt: feedback.aiClassifiedAt,
   createdAt: feedback.createdAt,
   updatedAt: feedback.updatedAt,
 });
@@ -56,9 +63,12 @@ export const createFeedback = async (
     customerLabel: feedbackData.customerLabel || "",
     status: "NEW",
     sourceType,
+    aiClassificationStatus: "PENDING",
   });
 
-  return formatFeedback(feedback);
+  const { feedback: classifiedFeedback } = await classifyFeedback(feedback);
+
+  return formatFeedback(classifiedFeedback);
 };
 
 export const createSimulatedFeedback = async (workspaceId, feedbackData) =>
@@ -123,3 +133,6 @@ export const deleteFeedback = async (workspaceId, feedbackId) => {
 
   await feedback.deleteOne();
 };
+
+export const getWorkspaceFeedbackDocument = findWorkspaceFeedback;
+export const formatFeedbackForResponse = formatFeedback;
