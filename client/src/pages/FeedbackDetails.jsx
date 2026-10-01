@@ -1,4 +1,4 @@
-import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
+import { ArrowLeft, Pencil, RefreshCw, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import LoadingState from "../components/LoadingState.jsx";
@@ -6,6 +6,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 import {
   deleteFeedback,
   getFeedbackById,
+  reclassifyFeedback,
   updateFeedback,
 } from "../services/feedbackService.js";
 
@@ -34,6 +35,7 @@ function FeedbackDetails() {
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isClassifying, setIsClassifying] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
 
   const canManageFeedback = ["ADMIN", "ANALYST"].includes(user.role);
@@ -98,6 +100,28 @@ function FeedbackDetails() {
       });
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleReclassify = async () => {
+    setIsClassifying(true);
+    setMessage({ type: "", text: "" });
+
+    try {
+      const updatedFeedback = await reclassifyFeedback(feedbackId);
+
+      setFeedback(updatedFeedback);
+      setMessage({
+        type: "success",
+        text: "Feedback reclassified successfully.",
+      });
+    } catch (error) {
+      setMessage({
+        type: "error",
+        text: getErrorMessage(error, "AI classification failed."),
+      });
+    } finally {
+      setIsClassifying(false);
     }
   };
 
@@ -170,6 +194,15 @@ function FeedbackDetails() {
 
         {canManageFeedback && !isEditing && (
           <div className="flex gap-3">
+            <button
+              className="inline-flex items-center gap-2 rounded-lg border border-cyan-400/40 px-4 py-2.5 text-sm font-medium text-cyan-300 disabled:opacity-60"
+              disabled={isClassifying}
+              onClick={handleReclassify}
+              type="button"
+            >
+              <RefreshCw className={isClassifying ? "animate-spin" : ""} size={17} />
+              {isClassifying ? "Classifying..." : "Reclassify"}
+            </button>
             <button
               className="inline-flex items-center gap-2 rounded-lg border border-slate-700 px-4 py-2.5 text-sm font-medium text-slate-200"
               onClick={() => setIsEditing(true)}
@@ -316,6 +349,59 @@ function FeedbackDetails() {
           </dl>
         </section>
       )}
+      <div className="mt-8 border-t border-slate-800 pt-6">
+        <h2 className="text-lg font-semibold text-white">AI Classification</h2>
+
+        <dl className="mt-5 grid gap-5 sm:grid-cols-2">
+          <div>
+            <dt className="text-sm text-slate-500">AI status</dt>
+            <dd className="mt-1 font-medium text-cyan-300">
+              {feedback.aiClassificationStatus || "PENDING"}
+            </dd>
+          </div>
+
+          <div>
+            <dt className="text-sm text-slate-500">Sentiment</dt>
+            <dd className="mt-1 font-medium capitalize text-slate-200">
+              {feedback.sentiment || "Not classified"}
+            </dd>
+          </div>
+
+          <div>
+            <dt className="text-sm text-slate-500">Sentiment score</dt>
+            <dd className="mt-1 font-medium text-slate-200">
+              {typeof feedback.sentimentScore === "number"
+                ? feedback.sentimentScore.toFixed(2)
+                : "Not available"}
+            </dd>
+          </div>
+
+          <div>
+            <dt className="text-sm text-slate-500">Feature area</dt>
+            <dd className="mt-1 font-medium text-slate-200">
+              {feedback.featureArea || "Not identified"}
+            </dd>
+          </div>
+        </dl>
+
+        <div className="mt-5">
+          <p className="text-sm text-slate-500">Themes</p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {feedback.themes?.length > 0 ? (
+              feedback.themes.map((theme) => (
+                <span
+                  className="rounded-full bg-cyan-400/10 px-2.5 py-1 text-xs font-medium text-cyan-300"
+                  key={theme}
+                >
+                  {theme}
+                </span>
+              ))
+            ) : (
+              <span className="text-sm text-slate-400">No themes identified.</span>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

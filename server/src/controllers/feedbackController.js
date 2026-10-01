@@ -2,10 +2,13 @@ import {
   createFeedback,
   createSimulatedFeedback,
   deleteFeedback,
+  formatFeedbackForResponse,
   getFeedback,
   getFeedbackById,
+  getWorkspaceFeedbackDocument,
   updateFeedback,
 } from "../services/feedbackService.js";
+import { classifyFeedback } from "../services/feedbackClassificationService.js";
 import { importCsvFeedback } from "../services/feedbackImportService.js";
 import {
   createFeedbackSchema,
@@ -117,6 +120,35 @@ export const remove = async (request, response, next) => {
     response.status(200).json({
       success: true,
       message: "Feedback deleted successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const reclassify = async (request, response, next) => {
+  try {
+    const feedback = await getWorkspaceFeedbackDocument(
+      request.user.workspaceId,
+      request.params.feedbackId,
+    );
+    
+    const result = await classifyFeedback(feedback);
+
+    if (!result.classificationSucceeded) {
+      const error = new Error("AI classification failed.");
+
+      error.statusCode = 502;
+
+      throw error;
+    }
+
+    response.status(200).json({
+      success: true,
+      message: "Feedback reclassified successfully",
+      data: {
+        feedback: formatFeedbackForResponse(result.feedback),
+      },
     });
   } catch (error) {
     next(error);

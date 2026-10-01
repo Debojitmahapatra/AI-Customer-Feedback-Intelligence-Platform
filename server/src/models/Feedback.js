@@ -12,6 +12,7 @@ const channels = [
 
 const statuses = ["NEW", "REVIEWED", "ACTIONED"];
 const sourceTypes = ["MANUAL", "CSV", "SIMULATED"];
+const classificationStatuses = ["PENDING", "COMPLETED", "FAILED"];
 
 const feedbackSchema = new mongoose.Schema(
   {
@@ -50,10 +51,13 @@ const feedbackSchema = new mongoose.Schema(
     },
     sentiment: {
       type: String,
+      enum: ["positive", "neutral", "negative"],
       default: null,
     },
     sentimentScore: {
       type: Number,
+      min: -1,
+      max: 1,
       default: null,
     },
     themes: {
@@ -62,6 +66,15 @@ const feedbackSchema = new mongoose.Schema(
     },
     featureArea: {
       type: String,
+      default: null,
+    },
+    aiClassificationStatus: {
+      type: String,
+      enum: classificationStatuses,
+      default: "PENDING",
+    },
+    aiClassifiedAt: {
+      type: Date,
       default: null,
     },
   },
@@ -76,5 +89,5 @@ feedbackSchema.index({ workspaceId: 1, channel: 1 });
 
 const Feedback = mongoose.model("Feedback", feedbackSchema);
 
-export { channels, sourceTypes, statuses };
+export { channels, classificationStatuses, sourceTypes, statuses };
 export default Feedback;

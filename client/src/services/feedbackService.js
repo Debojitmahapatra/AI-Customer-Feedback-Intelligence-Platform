@@ -47,3 +47,9 @@ export const deleteFeedback = async (feedbackId) => {
 
   return response.data;
 };
+
+export const reclassifyFeedback = async (feedbackId) => {
+  const response = await api.post(`/feedback/${feedbackId}/reclassify`);
+
+  return response.data.data.feedback;
+};

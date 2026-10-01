@@ -1,6 +1,7 @@
 import csv from "csv-parser";
 import { Readable } from "node:stream";
 import Feedback from "../models/Feedback.js";
+import { classifyFeedback } from "./feedbackClassificationService.js";
 
 const requiredColumns = ["content", "channel", "customer_label", "created_at"];
 const validChannels = [
@@ -122,9 +123,11 @@ export const importCsvFeedback = async (workspaceId, file) => {
     }
 
     const csvRows = await parseCsvRows(file.buffer);
+
     if (csvRows.every(isEmptyRow)) {
         throw createHttpError("The CSV file has no data rows.", 400);
     }
+
     const validRows = [];
     const failures = [];
     let failedRows = 0;
@@ -157,12 +160,23 @@ export const importCsvFeedback = async (workspaceId, file) => {
             ...result.feedbackData,
             status: "NEW",
             sourceType: "CSV",
+            aiClassificationStatus: "PENDING",
             updatedAt: result.feedbackData.createdAt,
         });
     });
 
+    let classificationFailedRows = 0;
+
     if (validRows.length > 0) {
-        await Feedback.insertMany(validRows);
+        const importedFeedback = await Feedback.insertMany(validRows);
+        const classificationResults = await Promise.allSettled(
+            importedFeedback.map((feedback) => classifyFeedback(feedback)),
+        );
+
+        classificationFailedRows = classificationResults.filter(
+            (result) =>
+                result.status === "rejected" || !result.value.classificationSucceeded,
+        ).length;
     }
 
     return {
@@ -171,5 +185,6 @@ export const importCsvFeedback = async (workspaceId, file) => {
         failedRows,
         failures,
         failureDetailsTruncated: failedRows > failures.length,
+        classificationFailedRows,
     };
 };
