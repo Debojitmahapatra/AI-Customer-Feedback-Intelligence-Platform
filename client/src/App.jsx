@@ -8,6 +8,8 @@ import Login from "./pages/Login.jsx";
 import Members from "./pages/Members.jsx";
 import Register from "./pages/Register.jsx";
 import ProtectedRoute from "./routes/ProtectedRoute.jsx";
+import Themes from "./pages/Themes.jsx";
+import ThemeDetails from "./pages/ThemeDetails.jsx";
 
 function App() {
   return (
@@ -58,6 +60,26 @@ function App() {
           <ProtectedRoute>
             <AppLayout>
               <FeedbackDetails />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/themes"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <Themes />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/themes/:theme"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <ThemeDetails />
             </AppLayout>
           </ProtectedRoute>
         }
