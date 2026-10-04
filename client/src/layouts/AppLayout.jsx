@@ -1,10 +1,11 @@
-import { BarChart3, Inbox, Lightbulb, RotateCcw, Users, Layers3} from "lucide-react";
+import { BarChart3, Inbox, Lightbulb,MessageCircleQuestion, RotateCcw, Users, Layers3} from "lucide-react";
 import { NavLink } from "react-router-dom";
 
 const navigationItems = [
   { label: "Dashboard", icon: BarChart3, to: "/dashboard" },
   { label: "Feedback Inbox", icon: Inbox, to: "/inbox" },
   { label: "Themes", icon: Layers3, to: "/themes" },
+  { label: "Ask LOOP", icon: MessageCircleQuestion, to: "/ask" },
   { label: "Members", icon: Users, to: "/members" },
 ];
 

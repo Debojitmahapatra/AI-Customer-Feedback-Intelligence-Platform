@@ -10,6 +10,7 @@ import Register from "./pages/Register.jsx";
 import ProtectedRoute from "./routes/ProtectedRoute.jsx";
 import Themes from "./pages/Themes.jsx";
 import ThemeDetails from "./pages/ThemeDetails.jsx";
+import AskLoop from "./pages/AskLoop.jsx";
 
 function App() {
   return (
@@ -70,6 +71,16 @@ function App() {
           <ProtectedRoute>
             <AppLayout>
               <Themes />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/ask"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <AskLoop />
             </AppLayout>
           </ProtectedRoute>
         }
