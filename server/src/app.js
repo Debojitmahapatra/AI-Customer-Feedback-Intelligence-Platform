@@ -6,6 +6,8 @@ import apiRouter from "./routes/apiRoutes.js";
 import errorHandler from "./middleware/errorHandler.js";
 import notFound from "./middleware/notFound.js";
 import apiLimiter from "./config/rateLimit.js";
+import dotenv from "dotenv";
+dotenv.config();
 
 const app = express();
 
