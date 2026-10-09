@@ -27,6 +27,15 @@ export const askLoopAiResponseSchema = z
   })
   .strict();
 
+export const askHistoryQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(50).default(10),
+});
+
+export const askHistoryParamSchema = z.object({
+  historyId: z.string().trim().min(1, "History ID is required."),
+});
+
 export const validateRequest = (schema, requestData) => {
   const result = schema.safeParse(requestData);
 

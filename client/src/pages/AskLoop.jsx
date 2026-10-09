@@ -1,14 +1,47 @@
 import { MessageCircleQuestion } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import AskHistoryList from "../components/ask-loop/AskHistoryList.jsx";
+import AskLoopAnswer from "../components/ask-loop/AskLoopAnswer.jsx";
 import AskLoopInput from "../components/ask-loop/AskLoopInput.jsx";
 import LoadingState from "../components/LoadingState.jsx";
-import { askQuestion } from "../services/askLoopService.js";
+import {
+  askQuestion,
+  getAskHistory,
+  refreshAskHistory,
+} from "../services/askLoopService.js";
+
+const GENERIC_ERROR_MESSAGE =
+  "Something went wrong while generating the answer. Please try again.";
 
 function AskLoop() {
   const [question, setQuestion] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isHistoryLoading, setIsHistoryLoading] = useState(true);
+  const [refreshingId, setRefreshingId] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [, setAnswerData] = useState(null);
+  const [answerData, setAnswerData] = useState(null);
+  const [history, setHistory] = useState([]);
+
+  const loadHistory = useCallback(async () => {
+    try {
+      setIsHistoryLoading(true);
+
+      const data = await getAskHistory({
+        page: 1,
+        limit: 10,
+      });
+
+      setHistory(data.history);
+    } catch {
+      setHistory([]);
+    } finally {
+      setIsHistoryLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadHistory();
+  }, [loadHistory]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -20,18 +53,67 @@ function AskLoop() {
     try {
       setIsLoading(true);
       setErrorMessage("");
+      setAnswerData(null);
 
       const data = await askQuestion({
         question: question.trim(),
       });
 
       setAnswerData(data);
+
+      if (data.historyId) {
+        await loadHistory();
+      }
     } catch {
-      setErrorMessage(
-        "Something went wrong while generating the answer. Please try again.",
-      );
+      setErrorMessage(GENERIC_ERROR_MESSAGE);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleOpenHistory = (historyItem) => {
+    setQuestion(historyItem.question);
+    setErrorMessage("");
+    setAnswerData({
+      question: historyItem.question,
+      answer: historyItem.answer,
+      citations: historyItem.citations,
+      retrievedCount: historyItem.retrievedCount,
+      historyId: historyItem.id,
+    });
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
+  const handleRefreshHistory = async (historyId) => {
+    try {
+      setRefreshingId(historyId);
+      setErrorMessage("");
+
+      const data = await refreshAskHistory(historyId);
+
+      setAnswerData(data);
+      setQuestion(data.question);
+
+      if (data.history) {
+        setHistory((currentHistory) =>
+          currentHistory.map((item) =>
+            item.id === historyId ? data.history : item,
+          ),
+        );
+      }
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    } catch {
+      setErrorMessage(GENERIC_ERROR_MESSAGE);
+    } finally {
+      setRefreshingId("");
     }
   };
 
@@ -72,6 +154,18 @@ function AskLoop() {
           {errorMessage}
         </p>
       )}
+
+      {answerData && !isLoading && (
+        <AskLoopAnswer answerData={answerData} />
+      )}
+
+      <AskHistoryList
+        history={history}
+        isLoading={isHistoryLoading}
+        onOpen={handleOpenHistory}
+        onRefresh={handleRefreshHistory}
+        refreshingId={refreshingId}
+      />
     </div>
   );
 }

@@ -62,7 +62,13 @@ const getEnvironmentValue = (name) => {
 
 const getProvider = () => {
   const provider = (process.env.AI_PROVIDER || "anthropic").toLowerCase();
-  const supportedProviders = ["anthropic", "gemini", "groq", "openrouter"];
+  const supportedProviders = [
+    "anthropic",
+    "gemini",
+    "groq",
+    "openrouter",
+    "top-tools-ai",
+  ];
 
   if (!supportedProviders.includes(provider)) {
     throw createHttpError("Unsupported AI provider.");
@@ -211,6 +217,50 @@ const requestFromOpenRouter = async ({
   return text;
 };
 
+const requestFromTopToolsAi = async ({
+  systemPrompt,
+  userPrompt,
+  maxTokens,
+}) => {
+  const response = await fetch(
+    "https://top-tools-ai.com/api/v1/chat/completions",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${getEnvironmentValue("TOP_TOOLS_AI_API_KEY")}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: getEnvironmentValue("TOP_TOOLS_AI_MODEL"),
+        max_tokens: maxTokens,
+        messages: [
+          {
+            role: "system",
+            content: systemPrompt,
+          },
+          {
+            role: "user",
+            content: userPrompt,
+          },
+        ],
+      }),
+    },
+  );
+console.log("Top-Tools-AI response status:", response);
+  if (!response.ok) {
+    throw createHttpError("Top-Tools-AI request failed.", 502);
+  }
+
+  const data = await response.json();
+  const text = data.choices?.[0]?.message?.content;
+
+  if (!text) {
+    throw createHttpError("AI provider returned no text.", 502);
+  }
+
+  return text;
+};
+
 const requestAiText = async ({
   systemPrompt,
   userPrompt,
@@ -236,6 +286,14 @@ const requestAiText = async ({
 
   if (provider === "groq") {
     return requestFromGroq({
+      systemPrompt,
+      userPrompt,
+      maxTokens,
+    });
+  }
+
+  if (provider === "top-tools-ai") {
+    return requestFromTopToolsAi({
       systemPrompt,
       userPrompt,
       maxTokens,
