@@ -11,6 +11,7 @@ const startServer = async () => {
 
   app.listen(port, () => {
     console.log(`LOOP API running on http://localhost:${port}`);
+    console.log("Client URL:", process.env.CLIENT_URL || "http://localhost:5173");
   });
 };
 
