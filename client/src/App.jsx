@@ -11,6 +11,8 @@ import ProtectedRoute from "./routes/ProtectedRoute.jsx";
 import Themes from "./pages/Themes.jsx";
 import ThemeDetails from "./pages/ThemeDetails.jsx";
 import AskLoop from "./pages/AskLoop.jsx";
+import Reports from "./pages/Reports.jsx";
+import ReportDetails from "./pages/ReportDetails.jsx";
 
 function App() {
   return (
@@ -91,6 +93,27 @@ function App() {
           <ProtectedRoute>
             <AppLayout>
               <ThemeDetails />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/reports"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <Reports />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/reports/:reportId"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <ReportDetails />
             </AppLayout>
           </ProtectedRoute>
         }
