@@ -4,12 +4,13 @@ import {
   Bot,
   FileText,
   Inbox,
+  LogOut,
   Sparkles,
   Tags,
   TrendingUp,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link,useNavigate } from "react-router-dom";
 import {
   Area,
   AreaChart,
@@ -89,7 +90,8 @@ function MetricCard({ label, value, description, icon: Icon, tone = "cyan" }) {
 }
 
 function Dashboard() {
-  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const [themes, setThemes] = useState([]);
   const [spikes, setSpikes] = useState([]);
   const [recentFeedback, setRecentFeedback] = useState([]);
@@ -126,7 +128,7 @@ function Dashboard() {
 
     loadDashboard();
   }, []);
-
+  
   const highestRiskTheme = useMemo(() => {
     if (themes.length === 0) {
       return null;
@@ -173,6 +175,11 @@ function Dashboard() {
     return [...groupedByDate.values()];
   }, [themeTrends]);
 
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
   if (isLoading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
@@ -212,13 +219,24 @@ function Dashboard() {
           </p>
         </div>
 
-        <Link
-          className="inline-flex items-center justify-center gap-2 rounded-lg bg-cyan-400 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
-          to="/ask"
-        >
-          <Bot size={18} />
-          Ask LOOP
-        </Link>
+        <div className="flex flex-wrap items-center gap-3">
+          <Link
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-cyan-400 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
+            to="/ask"
+          >
+            <Bot size={18} />
+            Ask LOOP
+          </Link>
+
+          <button
+            className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-700 px-4 py-2.5 text-sm font-medium text-slate-200 transition hover:border-rose-400 hover:text-rose-300"
+            onClick={handleLogout}
+            type="button"
+          >
+            <LogOut size={17} />
+            Sign out
+          </button>
+        </div>
       </header>
 
       <section className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
