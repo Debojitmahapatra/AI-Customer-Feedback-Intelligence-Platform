@@ -112,6 +112,27 @@ npm run dev
 - API: `http://localhost:5000`
 - Health check: `http://localhost:5000/api/health`
 
+## Demo data for your presentation
+
+The project includes an idempotent MongoDB demo seed. It creates a separate **LOOP Demo Workspace** with realistic, pre-classified feedback, two saved Ask LOOP answers with citations, and a saved Voice-of-Customer report. It does not call an AI provider and never deletes or overwrites existing records.
+
+From the `server` directory, after configuring `MONGO_URI` in `server/.env`:
+
+```bash
+npm run seed:demo
+```
+
+Sign in with:
+
+```text
+Email: demo@loop.local
+Password: DemoPassword123!
+```
+
+For a different demo account, set `DEMO_USER_EMAIL` and `DEMO_USER_PASSWORD` in `server/.env` before running the seed. Re-running the command is safe: it only inserts demo entries that are missing.
+
+The seed content intentionally includes dashboard performance, report speed, login, notifications, CSV imports, AI classification, billing, and mobile-navigation feedback. It gives the dashboard, theme analytics, Ask LOOP history, feedback inbox, and reports page useful material for a live demo. New Ask LOOP questions or generated reports still use your configured AI provider.
+
 ## Environment variables
 
 ### Backend: `server/.env`
